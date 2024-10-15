@@ -1,0 +1,3 @@
+[submodule "quandry"]
+	path = quandry
+	url = https://github.com/SnpM/quandry.git
