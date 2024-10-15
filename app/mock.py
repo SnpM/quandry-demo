@@ -37,7 +37,7 @@ class CapitalTriviaEvaluator(IEvaluator):
                 correct_answer = capital
 
         if correct_answer is None:
-            return Evaluation(EvalCode.ERROR, f"I don't know how to evaluate the prompt")
+            return Evaluation(EvalCode.ERROR, f"I don't know how to evaluate the prompt and expectation.")
         
         if correct_answer.lower() in response.lower():
             return Evaluation(EvalCode.PASS, f"Correctly responded with '{correct_answer}'")

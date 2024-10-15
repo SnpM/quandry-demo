@@ -138,7 +138,6 @@ def main():
 
     st.divider()
     #====Generate Report====
-    st.subheader("Report")
     if st.button("Evaluate"):
         # Construct subject and evaluator with no parameters
         # TODO: Enable passing a kwargs in; maybe define schema
