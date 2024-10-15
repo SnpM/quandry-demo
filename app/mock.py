@@ -1,4 +1,3 @@
-import setup_quandry
 from quandry.classes import *
 
 country_capitals = {

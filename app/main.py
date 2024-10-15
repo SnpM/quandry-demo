@@ -4,8 +4,7 @@ import os
 import streamlit as st
 import pandas as pd
 
-import setup_quandry
-from quandry.classes import *
+=from quandry.classes import *
 from quandry.evaluators import LlmClassifier_Gemini
 from quandry.subjects import OpenAiSubject
 from typing import *
