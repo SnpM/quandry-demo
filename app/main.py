@@ -99,7 +99,10 @@ def main():
             hide_index=True,
         )
         st.session_state["human_responses"] = human_responses
-        human_responses_dict = dict(zip(human_responses["Prompt"],human_responses["Response"]))
+        if len(human_responses) > 0:
+            human_responses_dict = dict(zip(human_responses["Prompt"],human_responses["Response"]))
+        else:
+            human_responses_dict = {}
         subject.update(human_responses_dict)
 
         # TODO: Should we copy values to _human_responses df?
