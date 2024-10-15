@@ -81,15 +81,13 @@ def main():
                     continue
                 if "Prompt" not in responses.columns:
                     import pdb; pdb.set_trace()
-
                     
-                if prompt not in responses["Prompt"]:
-                    responses = pd.concat((
-                        responses,
-                        pd.DataFrame({"Prompt":[prompt],"Response":[""]})
-                        ))
-            extra_responses = responses.apply(lambda row: row["Prompt"] not in prompts, axis=1)
-            responses = responses[~extra_responses]
+                # Add row if prompt not in responses
+                if prompt not in responses["Prompt"].values:
+                    responses = pd.concat([responses, pd.DataFrame([{"Prompt": prompt, "Response": ""}])], ignore_index=True)
+                    
+            # Drop rows that are not in prompts
+            responses = responses[responses["Prompt"].isin(prompts)]
             return responses
         human_responses_anchor = clean_response_df(cases_df["Prompt"].values, human_responses_anchor)
         st.session_state["human_responses_anchor"] = human_responses_anchor
@@ -107,6 +105,7 @@ def main():
             hide_index=True,
         )
         human_responses = clean_response_df(cases_df["Prompt"].values, human_responses)
+        human_responses_anchor.update(human_responses)
         
         st.session_state["human_responses"] = human_responses
         human_responses_dict = {}
