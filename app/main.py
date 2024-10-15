@@ -38,15 +38,16 @@ def main():
     # Then save the edited output into our output session variable
     uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
     if uploaded_file is not None:
-        st.session_state["og_cases_df"] = pd.read_csv(uploaded_file)
+        st.session_state["cases_df_anchor"] = pd.read_csv(uploaded_file)
     elif "cases_df" not in st.session_state:
-        st.session_state["og_cases_df"] = default_prompt_df.copy().reset_index(drop=True)
+        st.session_state["cases_df_anchor"] = default_prompt_df.copy().reset_index(drop=True)
         
-    og_cases_df = st.session_state["og_cases_df"]
+    cases_df_anchor:pd.DataFrame = st.session_state["cases_df_anchor"]
 
-    cases_df = st.data_editor(og_cases_df,num_rows="dynamic")
+    cases_df = st.data_editor(cases_df_anchor,num_rows="dynamic")
     
-    st.session_state["cases_df"] = cases_df.copy()
+    st.session_state["cases_df"] = cases_df
+        
     st.divider()
 
     #====Select Target====
@@ -69,40 +70,48 @@ def main():
         cases_df = st.session_state["cases_df"]
 
         # Storing original data_editor df in _ session variable
-        if "_human_responses" not in st.session_state:
-            st.session_state["_human_responses"] = pd.DataFrame(
+        if "human_responses_anchor" not in st.session_state:
+            st.session_state["human_responses_anchor"] = pd.DataFrame(
                 columns=["Prompt","Response"]).reset_index(drop=True)
         
-        _human_responses:pd.DataFrame = st.session_state["_human_responses"]
+        human_responses_anchor:pd.DataFrame = st.session_state["human_responses_anchor"]
+        def clean_response_df(prompts, responses):
+            for prompt in prompts:
+                if prompt is None:
+                    continue
+                if "Prompt" not in responses.columns:
+                    import pdb; pdb.set_trace()
 
-        prompts = cases_df["Prompt"].values
-        for prompt in prompts:
-            if prompt is None:
-                continue
-            if prompt not in _human_responses["Prompt"]:
-                _human_responses = pd.concat((
-                    _human_responses,
-                    pd.DataFrame({"Prompt":[prompt],"Response":[""]})
-                    ))
+                    
+                if prompt not in responses["Prompt"]:
+                    responses = pd.concat((
+                        responses,
+                        pd.DataFrame({"Prompt":[prompt],"Response":[""]})
+                        ))
+            extra_responses = responses.apply(lambda row: row["Prompt"] not in prompts, axis=1)
+            responses = responses[~extra_responses]
+            return responses
+        human_responses_anchor = clean_response_df(cases_df["Prompt"].values, human_responses_anchor)
+        st.session_state["human_responses_anchor"] = human_responses_anchor
 
-    
-        badprompts = _human_responses.apply(lambda row: row["Prompt"] not in prompts, axis=1)
-        _human_responses = _human_responses[~badprompts]
-    
+
         colconfig = {
             "Prompt":st.column_config.Column(disabled=True),
             "Response":st.column_config.Column(width="large")
         }
         human_responses = st.data_editor(
-            _human_responses,num_rows="fixed", use_container_width=True,
+            human_responses_anchor,
+            num_rows="fixed",
+            use_container_width=True,
             column_config=colconfig,
             hide_index=True,
         )
+        human_responses = clean_response_df(cases_df["Prompt"].values, human_responses)
+        
         st.session_state["human_responses"] = human_responses
-        if len(human_responses) > 0:
-            human_responses_dict = dict(zip(human_responses["Prompt"],human_responses["Response"]))
-        else:
-            human_responses_dict = {}
+        human_responses_dict = {}
+        for idx,row in human_responses.iterrows():
+            human_responses_dict[row["Prompt"]] = row["Response"]
         subject.update(human_responses_dict)
 
         # TODO: Should we copy values to _human_responses df?
