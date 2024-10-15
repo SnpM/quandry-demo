@@ -1,11 +1,17 @@
+import setup_quandry
 from quandry.classes import *
 
 country_capitals = {
-    "France":"Paris",
-    "Germany":"Berlin",
-    "Italy":"Rome",
-    "Spain":"Madrid",
-    "Portugal":"Lisbon",
+    "France": "Paris",
+    "Germany": "Berlin",
+    "Italy": "Rome",
+    "Spain": "Madrid",
+    "Portugal": "Lisbon",
+    "Netherlands": "Amsterdam",
+    "Belgium": "Brussels",
+    "Switzerland": "Bern",
+    "Austria": "Vienna",
+    "Greece": "Athens"
 }
 class HumanSubject(ISubject):
     responses = {}

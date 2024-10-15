@@ -1,18 +1,19 @@
 import sys
 import os
-sys.path.append(os.getcwd())
 
 import streamlit as st
 import pandas as pd
+
+import setup_quandry
 from quandry.classes import *
 from quandry.evaluators import LlmClassifier_Gemini
-from quandry.subjects import VanillaChatGPT
+from quandry.subjects import OpenAiSubject
 from typing import *
 
-import demo.mock as mock
+import mock
 
 default_prompt_df = [
-    (f"{capital}, {country}", f"Ask for capital of {country}",
+    (f"{country} Capital", f"Ask for capital of {country}",
      f"What is the capital of {country}?", f"Answer correclty with '{capital}'") 
     for country,capital in mock.country_capitals.items()]
 default_prompt_df = pd.DataFrame(default_prompt_df, columns=["Name", "Desc", "Prompt", "Expectation"])
@@ -51,7 +52,7 @@ def main():
 
     #====Select Target====
     st.subheader("Configure Subject")
-    subject_options = [mock.CapitalTriviaSubject, mock.HumanSubject, VanillaChatGPT]
+    subject_options = [mock.CapitalTriviaSubject, mock.HumanSubject, OpenAiSubject]
 
     if "subject_idx" not in st.session_state:
         st.session_state["subject_idx"] = 0
