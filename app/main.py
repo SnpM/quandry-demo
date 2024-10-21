@@ -64,7 +64,18 @@ def main():
 
     #====Select Target====
     st.subheader("Configure Subject", anchor="Configure-Subject")
-    subject_options = [OpenAiSubject, mock.CapitalTriviaSubject, mock.HumanSubject]
+    class SubjectOption:
+        def __init__(self, name:str, subject:ISubject):
+            self.name = name
+            self.subject = subject
+        
+    subject_options = [
+        SubjectOption("gpt-4o-mini", OpenAiSubject("gpt-4o-mini-2024-07-18")),   
+        SubjectOption("gpt-3.5-turbo-0125", OpenAiSubject("gpt-3.5-turbo-0125")),
+        SubjectOption("o1-mini", OpenAiSubject("o1-mini-2024-09-12")),
+        SubjectOption("Human", mock.HumanSubject()),
+        SubjectOption("Capital Trivia", mock.CapitalTriviaSubject())           
+    ] 
 
     if "subject_idx" not in st.session_state:
         st.session_state["subject_idx"] = 0
@@ -74,9 +85,9 @@ def main():
         "Select Subject", 
         range(len(subject_options)), 
         index=subject_idx, 
-        format_func=lambda i:subject_options[i].__name__)
+        format_func=lambda i:subject_options[i].name)
     st.session_state["subject_idx"] = subject_idx
-    subject = subject_options[subject_idx]()
+    subject = subject_options[subject_idx].subject
 
     if isinstance(subject, mock.HumanSubject):
         cases_df = st.session_state["cases_df"]
