@@ -3,3 +3,4 @@ pandas==2.2.2
 google-generativeai
 streamlit
 ./quandry-2024.0.0.dev0-py3-none-any.whl
+streamlit-scroll-navigation

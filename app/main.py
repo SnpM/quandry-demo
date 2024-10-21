@@ -10,6 +10,8 @@ from quandry.subjects import OpenAiSubject
 from typing import *
 
 import mock
+import streamlit.components.v1 as components
+from streamlit_scroll_navigation import scroll_navbar
 
 default_prompt_df = [
     (f"{country} Capital", f"Ask for capital of {country}",
@@ -26,17 +28,26 @@ def results2df(results:Collection[CaseResult]) -> pd.DataFrame:
         for x in results
     ]
     return pd.DataFrame(dicts)
-
-
+        
+nav_labels = ["Configure Prompts", "Configure Subject", "Configure Evaluator", "Generate Report"]
+nav_anchors = ["Configure-Prompts", "Configure-Subject", "Configure-Evaluator", "Generate-Report"]
 def main():
-    st.set_page_config("Quandry Demo")
-    st.title("Quandry Demo")
+    st.set_page_config("Quandry Demo", layout="wide")
 
+    with st.sidebar:
+        st.markdown("<h1 style='text-align: center; font-size: 3em;'>Quandry</h1>", unsafe_allow_html=True)
+        st.markdown("<h3 style='text-align: center;'>demo v0.1.0</h3>", unsafe_allow_html=True)
+        st.divider()
+        scroll_navbar(nav_anchors, anchor_labels=nav_labels)
+        
     #=====Prompt Package====
-    st.subheader("Configure Prompts")
-    # Streamlit hack: We need to store an original dataframe to make data_editor work correctly
-    # Then save the edited output into our output session variable
-    uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
+    st.subheader("Configure Prompts",anchor="Configure-Prompts")
+
+    uploaded_file = st.file_uploader(
+        "Choose a CSV file", type="csv",
+        accept_multiple_files=False,
+    )
+    
     if uploaded_file is not None:
         st.session_state["cases_df_anchor"] = pd.read_csv(uploaded_file)
     elif "cases_df" not in st.session_state:
@@ -44,14 +55,15 @@ def main():
         
     cases_df_anchor:pd.DataFrame = st.session_state["cases_df_anchor"]
 
-    cases_df = st.data_editor(cases_df_anchor,num_rows="dynamic")
-    
-    st.session_state["cases_df"] = cases_df
+    # Hide by default
+    with st.expander("Edit Prompts", expanded=False):
+        cases_df = st.data_editor(cases_df_anchor,num_rows="dynamic", use_container_width=True)
+        st.session_state["cases_df"] = cases_df
         
     st.divider()
 
     #====Select Target====
-    st.subheader("Configure Subject")
+    st.subheader("Configure Subject", anchor="Configure-Subject")
     subject_options = [mock.CapitalTriviaSubject, mock.HumanSubject, OpenAiSubject]
 
     if "subject_idx" not in st.session_state:
@@ -120,7 +132,7 @@ def main():
 
     st.divider()
     #====Select Evaluator====
-    st.subheader("Configure Evaluator")
+    st.subheader("Configure Evaluator", anchor="Configure-Evaluator")
     evaluator_options = [mock.CapitalTriviaEvaluator, LlmClassifier_Gemini]
 
     if "evaluator_idx" not in st.session_state:
@@ -138,7 +150,8 @@ def main():
 
     st.divider()
     #====Generate Report====
-    if st.button("Evaluate"):
+    st.subheader("Generate Report", anchor="Generate-Report")
+    if st.button("Run Evaluation"):
         # Construct subject and evaluator with no parameters
         # TODO: Enable passing a kwargs in; maybe define schema
         tester = ExpectationTester(subject, evaluator)
@@ -149,8 +162,17 @@ def main():
     if "results_df" in st.session_state:
         results_df = st.session_state["results_df"]
         results_df["evalcode_name"] = results_df["evalcode"].apply(lambda x: EvalCode(x).name)
-        st.dataframe(results_df[['prompt','response','evalcode_name','explanation']])
-    
+        column_config={
+            "explanation":st.column_config.Column(width="large"),
+            "evalcode_name":st.column_config.Column(width="small")
+        }
+        st.dataframe(
+            results_df[['prompt', 'response', 'evalcode_name', 'explanation']], 
+            use_container_width=True, 
+            hide_index=True,
+            column_config=column_config
+        )
+            
     
 if __name__ == "__main__":
     main()
