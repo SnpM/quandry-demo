@@ -64,7 +64,7 @@ def main():
 
     #====Select Target====
     st.subheader("Configure Subject", anchor="Configure-Subject")
-    subject_options = [mock.CapitalTriviaSubject, mock.HumanSubject, OpenAiSubject]
+    subject_options = [OpenAiSubject, mock.CapitalTriviaSubject, mock.HumanSubject]
 
     if "subject_idx" not in st.session_state:
         st.session_state["subject_idx"] = 0
@@ -133,7 +133,7 @@ def main():
     st.divider()
     #====Select Evaluator====
     st.subheader("Configure Evaluator", anchor="Configure-Evaluator")
-    evaluator_options = [mock.CapitalTriviaEvaluator, LlmClassifier_Gemini]
+    evaluator_options = [LlmClassifier_Gemini, mock.CapitalTriviaEvaluator]
 
     if "evaluator_idx" not in st.session_state:
         st.session_state["evaluator_idx"] = 0
