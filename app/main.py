@@ -198,8 +198,10 @@ def main():
     js_code = """
     <script>
         frameElement.parentElement.style.display = 'none';
-        var tabName = '%s';
-        window.parent.postMessage({'tab': tabName}, '*');
+        const tabs = parent.document.querySelectorAll('.stTabs .stTab');
+        if (tabs.length > 0) {
+             tabs[0].click();
+        }
     </script>
     """ % force_tab
     components.html(js_code)
