@@ -89,7 +89,6 @@ def main():
         
     cases_df_anchor:pd.DataFrame = st.session_state["cases_df_anchor"]
 
-    # Hide by default
     with st.expander("Edit Prompts", expanded=True):
         colconfig = {
             "Desc":st.column_config.Column(width="small"),
@@ -287,7 +286,8 @@ def main():
                         column_config={
                             "evalcode_name":st.column_config.Column(width="small"),
                             "prompt":st.column_config.Column(width="small"),
-                            "name":st.column_config.Column(width="medium"),
+                            "response":st.column_config.Column(width="small"),
+                            "explanation":st.column_config.Column(width="large")
                         }
                         st.dataframe(
                             result_df[['name','prompt', 'response', 'evalcode_name', 'explanation']], 
