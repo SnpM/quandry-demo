@@ -203,7 +203,7 @@ def main():
              tabs[0].click();
         }
     </script>
-    """ % force_tab
+    """
     components.html(js_code)
     if len(tab_labels) > 0:
         tabs = st.tabs(tab_labels)
