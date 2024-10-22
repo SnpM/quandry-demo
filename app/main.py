@@ -212,7 +212,7 @@ def main():
     if "current_run" in st.session_state and st.session_state["current_run"]:
         status.text(f"Running evaluation on {st.session_state['current_run']}...")
         t = st.session_state["current_run_thread"]
-        while t.is_alive():
+        while t and t.is_alive():
             pass
         
     # Display all reports in one tab per report  
