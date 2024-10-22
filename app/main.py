@@ -3,6 +3,8 @@ import os
 
 import streamlit as st
 import pandas as pd
+from streamlit.runtime.scriptrunner import add_script_run_ctx
+from threading import Thread
 
 from quandry.classes import *
 from quandry.evaluators import LlmClassifier_Gemini, LlmClassifier_ChatGPT
@@ -168,37 +170,60 @@ def main():
     if "reports" not in st.session_state:
         st.session_state["reports"] = []
         
-    force_tab = None
     st.subheader("Generate Report", anchor="Generate-Report")
-    if st.button("Run Evaluation"):
+    
+    # Set defualt current_run
+    if "current_run" not in st.session_state:
+        st.session_state["current_run"] = False
+    
+    if st.button("Run Evaluation", disabled=bool(st.session_state["current_run"])):
         # Construct subject and evaluator with no parameters
         # TODO: Enable passing a kwargs in; maybe define schema
         subject_name = subject_options[subject_idx].name
         subject = subject_options[subject_idx].subject
-        tester = ExpectationTester(subject, evaluator)
-        cases = df2cases(st.session_state["cases_df"])
-        results = tester.test_batch(cases)
-        results_df = results2df(results)
-    
-        # Format results df
-        results_df["evalcode_name"] = results_df["evalcode"].apply(lambda x: EvalCode(x).name)
         
-        # Add to session state results
-        print ("Adding to results dict in session state")
-        # Add to beginning of reports
-        report_info = (subject_name,results_df)
-        st.session_state["reports"].insert(0, report_info)
-        force_tab = subject_name
+        def run(subject_name, subject):
+            tester = ExpectationTester(subject, evaluator)
+            cases = df2cases(st.session_state["cases_df"])
+            results = tester.test_batch(cases)
+            results_df = results2df(results)
         
-    # Display all reports in one tab per report
+            # Format results df
+            results_df["evalcode_name"] = results_df["evalcode"].apply(lambda x: EvalCode(x).name)
+            
+            # Add to session state results
+            print ("Adding to results dict in session state")
+            # Add to beginning of reports
+            report_info = (subject_name,results_df)
+            st.session_state["reports"].insert(0, report_info)
+            st.session_state["force_tab"] = subject_name
+            st.session_state["current_run"] = None
+            st.session_state["current_run_thread"] = None          
+        # Check if already running
+        if not st.session_state["current_run"]:
+            st.session_state["current_run"] = subject_name
+            t = Thread(target=run, args=(subject_name, subject))
+            st.session_state["current_run_thread"] = t
+            add_script_run_ctx(t)
+            t.start()
+            st.rerun()
     
-    
+    status = st.empty()
+    if "current_run" in st.session_state and st.session_state["current_run"]:
+        status.text(f"Running evaluation on {st.session_state['current_run']}...")
+        t = st.session_state["current_run_thread"]
+        while t.is_alive():
+            pass
+        
+    # Display all reports in one tab per report  
     reports = st.session_state["reports"]
     tab_labels = [x[0] for x in reports]
     
     if len(tab_labels) > 0:
+        force_tab = st.session_state.get("force_tab", None)
         if force_tab is not None:
-            # Little hack to select first anchor
+            st.session_state["force_tab"] = None
+            # Little hack to reset tabs to select first tab
             components.html("<script>frameElement.parentElement.style.display = 'none';</script>",)
             
         tabs = st.tabs(tab_labels)
