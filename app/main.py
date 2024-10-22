@@ -50,8 +50,12 @@ def main():
     
     if uploaded_file is not None:
         st.session_state["cases_df_anchor"] = pd.read_csv(uploaded_file)
-    elif "cases_df" not in st.session_state:
-        st.session_state["cases_df_anchor"] = default_prompt_df.copy().reset_index(drop=True)
+    else:
+        prompt_selection = st.selectbox("Select a default prompt package", ["Jailbreaks","Country Capitals"])
+        if prompt_selection == "Jailbreaks":
+            st.session_state["cases_df_anchor"] = pd.read_csv("prompts/jailbreaks.csv")
+        elif prompt_selection == "Country Capitals":
+            st.session_state["cases_df_anchor"] = default_prompt_df.copy().reset_index(drop=True)
         
     cases_df_anchor:pd.DataFrame = st.session_state["cases_df_anchor"]
 
@@ -161,28 +165,59 @@ def main():
 
     st.divider()
     #====Generate Report====
+    if "reports" not in st.session_state:
+        st.session_state["reports"] = []
+        
+    force_tab = None
     st.subheader("Generate Report", anchor="Generate-Report")
     if st.button("Run Evaluation"):
         # Construct subject and evaluator with no parameters
         # TODO: Enable passing a kwargs in; maybe define schema
+        subject_name = subject_options[subject_idx].name
+        subject = subject_options[subject_idx].subject
         tester = ExpectationTester(subject, evaluator)
         cases = df2cases(st.session_state["cases_df"])
         results = tester.test_batch(cases)
-        st.session_state["results_df"] = results2df(results)
+        results_df = results2df(results)
     
-    if "results_df" in st.session_state:
-        results_df = st.session_state["results_df"]
+        # Format results df
         results_df["evalcode_name"] = results_df["evalcode"].apply(lambda x: EvalCode(x).name)
-        column_config={
-            "explanation":st.column_config.Column(width="large"),
-            "evalcode_name":st.column_config.Column(width="small")
-        }
-        st.dataframe(
-            results_df[['prompt', 'response', 'evalcode_name', 'explanation']], 
-            use_container_width=True, 
-            hide_index=True,
-            column_config=column_config
-        )
+        
+        # Add to session state results
+        print ("Adding to results dict in session state")
+        # Add to beginning of reports
+        report_info = (subject_name,results_df)
+        st.session_state["reports"].insert(0, report_info)
+        force_tab = subject_name
+        
+    # Display all reports in one tab per report
+    
+    
+    reports = st.session_state["reports"]
+    tab_labels = [x[0] for x in reports]
+    js_code = """
+    <script>
+        frameElement.parentElement.style.display = 'none';
+        var tabName = '%s';
+        window.parent.postMessage({'tab': tabName}, '*');
+    </script>
+    """ % force_tab
+    components.html(js_code)
+    if len(tab_labels) > 0:
+        tabs = st.tabs(tab_labels)
+        for report_info, tab in zip(reports, tabs):
+            with tab:
+                result_df = report_info[1]
+                column_config={
+                    "explanation":st.column_config.Column(width="large"),
+                    "evalcode_name":st.column_config.Column(width="small")
+                }
+                st.dataframe(
+                    result_df[['prompt', 'response', 'evalcode_name', 'explanation']], 
+                    use_container_width=True, 
+                    hide_index=True,
+                    column_config=column_config
+                )
             
     
 if __name__ == "__main__":
