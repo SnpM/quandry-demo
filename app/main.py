@@ -132,6 +132,7 @@ def main():
             use_container_width=True,
             column_config=colconfig,
             hide_index=True,
+            key="human_responses_data_editor"
         )
         human_responses = clean_response_df(cases_df["Prompt"].values, human_responses)
         human_responses_anchor.update(human_responses)
@@ -220,6 +221,9 @@ def main():
         while t and t.is_alive():
             if st.session_state["current_run"] is None:
                 st.rerun()
+        st.session_state["current_run"] = None
+        st.session_state["current_run_thread"] = None
+        st.rerun()
     if "run_error" in st.session_state:
         status.markdown(f"<span style='color:red;'>Error running evaluation: {st.session_state['run_error']}</span>", unsafe_allow_html=True)
         del st.session_state["run_error"]
