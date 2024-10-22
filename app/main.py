@@ -195,17 +195,12 @@ def main():
     
     reports = st.session_state["reports"]
     tab_labels = [x[0] for x in reports]
-    js_code = """
-    <script>
-        frameElement.parentElement.style.display = 'none';
-        const tabs = parent.document.querySelectorAll('.stTabs .stTab');
-        if (tabs.length > 0) {
-             tabs[0].click();
-        }
-    </script>
-    """
-    components.html(js_code)
+    
     if len(tab_labels) > 0:
+        if force_tab is not None:
+            # Little hack to select first anchor
+            components.html("<script>frameElement.parentElement.style.display = 'none';</script>",)
+            
         tabs = st.tabs(tab_labels)
         for report_info, tab in zip(reports, tabs):
             with tab:
