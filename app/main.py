@@ -78,7 +78,7 @@ def main():
     subject_options = [
         SubjectOption("gpt-4o-mini", OpenAiSubject("gpt-4o-mini-2024-07-18")),   
         SubjectOption("gpt-3.5-turbo-0125", OpenAiSubject("gpt-3.5-turbo-0125")),
-        SubjectOption("o1-mini", OpenAiSubject("o1-mini-2024-09-12")),
+        SubjectOption("o1-mini", OpenAiSubject("o1-mini")),
         SubjectOption("Human", mock.HumanSubject()),
         SubjectOption("Capital Trivia", mock.CapitalTriviaSubject())           
     ] 
@@ -185,20 +185,25 @@ def main():
         def run(subject_name, subject):
             tester = ExpectationTester(subject, evaluator)
             cases = df2cases(st.session_state["cases_df"])
-            results = tester.test_batch(cases)
-            results_df = results2df(results)
+            try:
+                results = tester.test_batch(cases)
+                results_df = results2df(results)
         
-            # Format results df
-            results_df["evalcode_name"] = results_df["evalcode"].apply(lambda x: EvalCode(x).name)
-            
-            # Add to session state results
-            print ("Adding to results dict in session state")
-            # Add to beginning of reports
-            report_info = (subject_name,results_df)
-            st.session_state["reports"].insert(0, report_info)
-            st.session_state["force_tab"] = subject_name
-            st.session_state["current_run"] = None
-            st.session_state["current_run_thread"] = None          
+                # Format results df
+                results_df["evalcode_name"] = results_df["evalcode"].apply(lambda x: EvalCode(x).name)
+                
+                # Add to session state results
+                print ("Adding to results dict in session state")
+                # Add to beginning of reports
+                report_info = (subject_name,results_df)
+                st.session_state["reports"].insert(0, report_info)
+                st.session_state["force_tab"] = subject_name
+            except Exception as e:
+                print(f"Error running evaluation: {e}")
+                st.session_state["run_error"] = str(e)
+            finally:
+                st.session_state["current_run"] = None
+                st.session_state["current_run_thread"] = None          
         # Check if already running
         if not st.session_state["current_run"]:
             st.session_state["current_run"] = subject_name
@@ -211,9 +216,13 @@ def main():
     status = st.empty()
     if "current_run" in st.session_state and st.session_state["current_run"]:
         status.text(f"Running evaluation on {st.session_state['current_run']}...")
-        t = st.session_state["current_run_thread"]
+        t:Thread = st.session_state["current_run_thread"]
         while t and t.is_alive():
-            pass
+            if st.session_state["current_run"] is None:
+                st.rerun()
+    if "run_error" in st.session_state:
+        status.markdown(f"<span style='color:red;'>Error running evaluation: {st.session_state['run_error']}</span>", unsafe_allow_html=True)
+        del st.session_state["run_error"]
         
     # Display all reports in one tab per report  
     reports = st.session_state["reports"]
