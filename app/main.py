@@ -237,32 +237,40 @@ def main():
             return True
         else:
             return st.session_state["current_run"] is not None
-
+    button_container = st.empty()
     def draw_button():
-        button_container = st.empty()
         with button_container:
             button_disabled = st.session_state["current_run"] is not None or st.session_state["start_run"]
             if st.button("Run Evaluation", disabled=button_disabled, key="run_button"):
                 st.session_state["start_run"] = True    
                 print("click")
                 st.rerun()
-                    
+    
     status_container = st.empty()
     
+    # When force_tab is set, force the first tab to be selected
+    force_tab = st.session_state.get("force_tab", None)
+    js_code = "<script>frameElement.parentElement.style.display = 'none';</script>"
+    if force_tab is not None:
+        st.session_state["force_tab"] = None
+        # Little hack to reset selection to first tab
+        js_code = """
+            <script>
+                parentDiv=frameElement.parentElement
+                parentDiv.nextElementSibling.querySelector('[data-testid="stTab"]').click()
+            </script>
+        """
+    components.html(js_code)
+    
     reports_container = st.empty()
-    def draw_report(crib=""):
+    def draw_report():
+        
         with reports_container:
             # Display all reports in one tab per report  
             reports = st.session_state["reports"]
             tab_labels = [x[0] for x in reports]
             
             if len(tab_labels) > 0:
-                force_tab = st.session_state.get("force_tab", None)
-                if force_tab is not None:
-                    st.session_state["force_tab"] = None
-                    # Little hack to reset selection to first tab
-                    st.write("")
-                    st.rerun()  
                 tabs = st.tabs(tab_labels)
                 i = 0
                 for report_info, tab in zip(reports, tabs):
