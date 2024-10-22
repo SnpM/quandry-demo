@@ -15,7 +15,7 @@ from streamlit_scroll_navigation import scroll_navbar
 
 default_prompt_df = [
     (f"{country} Capital", f"Ask for capital of {country}",
-     f"What is the capital of {country}?", f"Answer correclty with '{capital}'") 
+     f"What is the capital of {country}?", f"Answer correctly with '{capital}'") 
     for country,capital in mock.country_capitals.items()]
 default_prompt_df = pd.DataFrame(default_prompt_df, columns=["Name", "Desc", "Prompt", "Expectation"])
 
