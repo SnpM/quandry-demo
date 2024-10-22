@@ -5,7 +5,7 @@ import streamlit as st
 import pandas as pd
 
 from quandry.classes import *
-from quandry.evaluators import LlmClassifier_Gemini
+from quandry.evaluators import LlmClassifier_Gemini, LlmClassifier_ChatGPT
 from quandry.subjects import OpenAiSubject
 from typing import *
 
@@ -148,7 +148,7 @@ def main():
     st.divider()
     #====Select Evaluator====
     st.subheader("Configure Evaluator", anchor="Configure-Evaluator")
-    evaluator_options = [LlmClassifier_Gemini, mock.CapitalTriviaEvaluator]
+    evaluator_options = [LlmClassifier_Gemini, LlmClassifier_ChatGPT, mock.CapitalTriviaEvaluator]
 
     if "evaluator_idx" not in st.session_state:
         st.session_state["evaluator_idx"] = 0
