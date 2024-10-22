@@ -60,7 +60,7 @@ def main():
     cases_df_anchor:pd.DataFrame = st.session_state["cases_df_anchor"]
 
     # Hide by default
-    with st.expander("Edit Prompts", expanded=False):
+    with st.expander("Edit Prompts", expanded=True):
         cases_df = st.data_editor(cases_df_anchor,num_rows="dynamic", use_container_width=True)
         st.session_state["cases_df"] = cases_df
         
