@@ -148,7 +148,7 @@ def main():
     st.divider()
     #====Select Evaluator====
     st.subheader("Configure Evaluator", anchor="Configure-Evaluator")
-    evaluator_options = [LlmClassifier_Gemini, LlmClassifier_ChatGPT, mock.CapitalTriviaEvaluator]
+    evaluator_options = [LlmClassifier_ChatGPT, LlmClassifier_Gemini, mock.CapitalTriviaEvaluator]
 
     if "evaluator_idx" not in st.session_state:
         st.session_state["evaluator_idx"] = 0
