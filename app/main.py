@@ -91,7 +91,15 @@ def main():
 
     # Hide by default
     with st.expander("Edit Prompts", expanded=True):
-        cases_df = st.data_editor(cases_df_anchor,num_rows="dynamic", use_container_width=True)
+        colconfig = {
+            "Desc":st.column_config.Column(width="small"),
+            "Prompt":st.column_config.Column(width="small"),
+            "Expectation":st.column_config.Column(width="large")
+        }
+        cases_df = st.data_editor(
+            cases_df_anchor,num_rows="dynamic", use_container_width=True,
+            column_config=colconfig,
+        )
         st.session_state["cases_df"] = cases_df
         
     st.divider()
@@ -277,11 +285,12 @@ def main():
                     with tab:
                         result_df = report_info[1]
                         column_config={
-                            "explanation":st.column_config.Column(width="large"),
-                            "evalcode_name":st.column_config.Column(width="small")
+                            "evalcode_name":st.column_config.Column(width="small"),
+                            "prompt":st.column_config.Column(width="small"),
+                            "name":st.column_config.Column(width="medium"),
                         }
                         st.dataframe(
-                            result_df[['prompt', 'response', 'evalcode_name', 'explanation']], 
+                            result_df[['name','prompt', 'response', 'evalcode_name', 'explanation']], 
                             use_container_width=True, 
                             hide_index=True,
                             column_config=column_config,
