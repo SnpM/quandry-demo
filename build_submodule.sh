@@ -5,4 +5,4 @@ python -m build quandry_package
 cp ./quandry_package/dist/quandry*.whl .
 
 # install the module
-pip install quandry*.whl --force
+pip install quandry*.whl --force-reinstall --no-deps
