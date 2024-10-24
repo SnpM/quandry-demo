@@ -22,12 +22,11 @@ class SubjectOption:
         self.name = name
         self.subject = subject
 subject_options = [
-    
+    SubjectOption("gpt-4o-mini", OpenAiSubject("gpt-4o-mini-2024-07-18")),
     SubjectOption("gpt-3.5-turbo-0125", OpenAiSubject("gpt-3.5-turbo-0125")),
     SubjectOption("gpt-3.5-turbo-1106", OpenAiSubject("gpt-3.5-turbo-1106")),
     SubjectOption("gpt-4", OpenAiSubject("gpt-4-0613")),
     SubjectOption("gpt-4-turbo", OpenAiSubject("gpt-4-turbo-2024-04-09")),
-    SubjectOption("gpt-4o-mini", OpenAiSubject("gpt-4o-mini-2024-07-18")),
     SubjectOption("gpt-4o", OpenAiSubject("gpt-4o-2024-05-13")),
     SubjectOption("Human", mock.HumanSubject()),
     #SubjectOption("Capital Trivia", mock.CapitalTriviaSubject())           
