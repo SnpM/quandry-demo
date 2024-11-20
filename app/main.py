@@ -37,8 +37,10 @@ class EvaluatorOption:
         self.name = name
         self.evaluator = evaluator
 evaluator_options = [
+    EvaluatorOption("Llm Classifier (gpt-4o-mini)",LlmClassifier_ChatGPT("gpt-4o-mini")),
+    EvaluatorOption("Llm Classifier (gemini-1.5-flash)",LlmClassifier_Gemini()),
     EvaluatorOption("Llm Classifier (gpt-4o)",LlmClassifier_ChatGPT()),
-    EvaluatorOption("Llm Classifier (gemini-1.5-flash)",LlmClassifier_Gemini())
+
     #mock.CapitalTriviaEvaluator
     ]
 
@@ -62,7 +64,7 @@ def results2df(results:Collection[CaseResult]) -> pd.DataFrame:
 nav_labels = ["Configure Prompts", "Configure Subject", "Configure Evaluator", "Generate Report"]
 nav_anchors = ["Configure-Prompts", "Configure-Subject", "Configure-Evaluator", "Generate-Report"]
 def main():
-    st.set_page_config("Quandry Demo", layout="wide")
+    st.set_page_config("Quandry Demo", layout="wide", initial_sidebar_state="expanded")
     with st.sidebar:
         st.markdown("<h1 style='text-align: center; font-size: 3em;'>Quandry</h1>", unsafe_allow_html=True)
         st.markdown("<h3 style='text-align: center;'>demo v0.1.0</h3>", unsafe_allow_html=True)
