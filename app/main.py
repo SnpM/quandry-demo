@@ -37,7 +37,7 @@ class EvaluatorOption:
         self.name = name
         self.evaluator = evaluator
 evaluator_options = [
-    EvaluatorOption("Llm Classifier (gpt-4o-mini)",LlmClassifier_ChatGPT("gpt-4o-mini")),
+    EvaluatorOption("Llm Classifier (gpt-4o-mini)",LlmClassifier_ChatGPT(model_id="gpt-4o-mini")),
     EvaluatorOption("Llm Classifier (gemini-1.5-flash)",LlmClassifier_Gemini()),
     EvaluatorOption("Llm Classifier (gpt-4o)",LlmClassifier_ChatGPT()),
 
