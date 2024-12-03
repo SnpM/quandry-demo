@@ -40,7 +40,6 @@ evaluator_options = [
     EvaluatorOption("Llm Classifier (gpt-4o-mini)",LlmClassifier_ChatGPT(model_id="gpt-4o-mini")),
     EvaluatorOption("Llm Classifier (gemini-1.5-flash)",LlmClassifier_Gemini()),
     EvaluatorOption("Llm Classifier (gpt-4o)",LlmClassifier_ChatGPT()),
-
     #mock.CapitalTriviaEvaluator
     ]
 
@@ -292,8 +291,18 @@ def main():
                             "response":st.column_config.Column(width="small"),
                             "explanation":st.column_config.Column(width="large")
                         }
+                        def highlight_evalcode(val):
+                            color = ''
+                            if val == 'PASS':
+                                color = 'background-color: green'
+                            elif val == 'FAIL':
+                                color = 'background-color: red'
+                            return color
+
+                        styled_df = result_df[['name','prompt', 'response', 'evalcode_name', 'explanation']].style.applymap(highlight_evalcode, subset=['evalcode_name'])
+
                         st.dataframe(
-                            result_df[['name','prompt', 'response', 'evalcode_name', 'explanation']], 
+                            styled_df, 
                             use_container_width=True, 
                             hide_index=True,
                             column_config=column_config,
