@@ -8,7 +8,7 @@ from threading import Thread
 
 from quandry.classes import *
 from quandry.evaluators import LlmClassifier_Gemini, LlmClassifier_ChatGPT
-from quandry.subjects import OpenAiSubject
+from quandry.subjects import OpenAiSubject, GeminiSubject
 from typing import *
 import time
 
@@ -23,11 +23,12 @@ class SubjectOption:
         self.subject = subject
 subject_options = [
     SubjectOption("gpt-4o-mini", OpenAiSubject("gpt-4o-mini-2024-07-18")),
+    SubjectOption("gpt-4o", OpenAiSubject("gpt-4o-2024-05-13")),
+    SubjectOption("gemini-1.5-flash", GeminiSubject("gemini-1.5-flash")),
     SubjectOption("gpt-3.5-turbo-0125", OpenAiSubject("gpt-3.5-turbo-0125")),
     SubjectOption("gpt-3.5-turbo-1106", OpenAiSubject("gpt-3.5-turbo-1106")),
     SubjectOption("gpt-4", OpenAiSubject("gpt-4-0613")),
     SubjectOption("gpt-4-turbo", OpenAiSubject("gpt-4-turbo-2024-04-09")),
-    SubjectOption("gpt-4o", OpenAiSubject("gpt-4o-2024-05-13")),
     SubjectOption("Human", mock.HumanSubject()),
     #SubjectOption("Capital Trivia", mock.CapitalTriviaSubject())           
 ] 
@@ -38,8 +39,8 @@ class EvaluatorOption:
         self.evaluator = evaluator
 evaluator_options = [
     EvaluatorOption("Llm Classifier (gpt-4o-mini)",LlmClassifier_ChatGPT(model_id="gpt-4o-mini")),
-    EvaluatorOption("Llm Classifier (gemini-1.5-flash)",LlmClassifier_Gemini()),
     EvaluatorOption("Llm Classifier (gpt-4o)",LlmClassifier_ChatGPT()),
+    EvaluatorOption("Llm Classifier (gemini-1.5-flash)",LlmClassifier_Gemini()),
     #mock.CapitalTriviaEvaluator
     ]
 
@@ -65,8 +66,9 @@ nav_anchors = ["Configure-Prompts", "Configure-Subject", "Configure-Evaluator", 
 def main():
     st.set_page_config("Quandry Demo", layout="wide", initial_sidebar_state="expanded")
     with st.sidebar:
+        version = "demo v0.2.0"
         st.markdown("<h1 style='text-align: center; font-size: 3em;'>Quandry</h1>", unsafe_allow_html=True)
-        st.markdown("<h3 style='text-align: center;'>demo v0.1.0</h3>", unsafe_allow_html=True)
+        st.markdown(f"<h3 style='text-align: center;'>{version}</h3>", unsafe_allow_html=True)
         st.divider()
         scroll_navbar(nav_anchors, anchor_labels=nav_labels)
         
@@ -229,6 +231,8 @@ def main():
                 except Exception as e:
                     print(f"Error running evaluation: {e}")
                     st.session_state["run_error"] = str(e)
+                    import traceback
+                    traceback.print_exc()
                 finally:
                     st.session_state["current_run"] = None
                     st.session_state["current_run_thread"] = None   
@@ -299,7 +303,7 @@ def main():
                                 color = 'background-color: red'
                             return color
 
-                        styled_df = result_df[['name','prompt', 'response', 'evalcode_name', 'explanation']].style.applymap(highlight_evalcode, subset=['evalcode_name'])
+                        styled_df = result_df[['name','prompt', 'response', 'evalcode_name', 'explanation']].style.map(highlight_evalcode, subset=['evalcode_name'])
 
                         st.dataframe(
                             styled_df, 
