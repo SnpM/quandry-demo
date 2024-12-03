@@ -82,9 +82,11 @@ def main():
     if uploaded_file is not None:
         st.session_state["cases_df_anchor"] = pd.read_csv(uploaded_file)
     else:
-        prompt_selection = st.selectbox("Select a default prompt package", ["Jailbreaks","Country Capitals"])
+        prompt_selection = st.selectbox("Select a default prompt package", ["Jailbreaks","Comprehensive","Country Capitals"])
         if prompt_selection == "Jailbreaks":
             st.session_state["cases_df_anchor"] = pd.read_csv("prompts/jailbreaks.csv")
+        if prompt_selection == "Comprehensive":
+            st.session_state["cases_df_anchor"] = pd.read_csv("prompts/comprehensive.csv")
         elif prompt_selection == "Country Capitals":
             st.session_state["cases_df_anchor"] = default_prompt_df.copy().reset_index(drop=True)
         
