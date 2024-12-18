@@ -222,7 +222,6 @@ def main():
         
     def check_run() -> bool:
         if st.session_state["start_run"]:
-            print ("Starting run")
             st.session_state["start_run"] = False
             subject_idx = st.session_state["subject_idx"]
             subject_name = subject_options[subject_idx].name
@@ -274,7 +273,6 @@ def main():
             button_disabled = st.session_state["current_run"] is not None or st.session_state["start_run"]
             if st.button("Run Evaluation", disabled=button_disabled, key="run_button"):
                 st.session_state["start_run"] = True    
-                print("click")
                 st.rerun()
     
     status_container = st.empty()
