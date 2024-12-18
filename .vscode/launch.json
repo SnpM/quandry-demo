@@ -14,7 +14,7 @@
         ,
         {
             "name": "Streamlit: Run app/main.py",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "streamlit",
             "args": [
